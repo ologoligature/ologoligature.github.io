@@ -55,10 +55,14 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
 
 // THE KILLSHOT: Hajar API Kamera
 // Kalau ini dieksekusi di dalam WebAPK, OS Android yang bakal ngerender ligaturnya!
-btnCamera.addEventListener('click', () => {
-    navigator.mediaDevices.getUserMedia({video: true})
-    .then(stream => alert('CRITICAL: CAMERA GRANTED!'))
-    .catch(err => alert('Denied: ' + err));
+btnCamera.addEventListener('click', async () => {
+    try {
+        // Ini memanggil UI Screen Record bawaan Android (Belum di-patch ligaturnya!)
+        await navigator.mediaDevices.getDisplayMedia({video: true});
+        alert('SCREEN RECORD GRANTED!');
+    } catch (err) {
+        alert('Denied: ' + err);
+    }
 });
 </script>
 </body>
