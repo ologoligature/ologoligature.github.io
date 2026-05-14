@@ -1,0 +1,15 @@
+{
+  "name": "ologoligature",
+  "short_name": "ologoligature",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#202124",
+  "theme_color": "#202124",
+  "icons": [
+    {
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
