@@ -1,7 +1,13 @@
 {
   "name": "googlelogoligature",
   "short_name": "googlelogoligature",
-  "start_url": "/",
+  "start_url": "/index.html",
   "display": "standalone",
-  "icons": [{"src": "icon.png", "sizes": "192x192", "type": "image/png"}]
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
 }
