@@ -1,15 +1,7 @@
 {
   "name": "googlelogoligature",
   "short_name": "googlelogoligature",
-  "start_url": "/index.html",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#202124",
-  "theme_color": "#202124",
-  "icons": [
-    {
-      "src": "icon.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    }
-  ]
+  "icons": [{"src": "icon.png", "sizes": "192x192", "type": "image/png"}]
 }
